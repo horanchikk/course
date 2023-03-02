@@ -10,7 +10,8 @@ cur.execute('''CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     role INTEGER NOT NULL,
     login TEXT NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    access_token TEXT NOT NULL
 );''')
 # Roles
 cur.execute('''CREATE TABLE IF NOT EXISTS role (
