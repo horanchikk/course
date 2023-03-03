@@ -9,9 +9,13 @@ cur = db.cursor()
 cur.execute('''CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     role INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    patronymic TEXT,
     login TEXT NOT NULL,
+    email TEXT NOT NULL,
     password TEXT NOT NULL,
-    access_token TEXT NOT NULL
+    access_token TEXT NOT NULL  -- unique token
 );''')
 # Roles
 cur.execute('''CREATE TABLE IF NOT EXISTS role (
@@ -35,12 +39,25 @@ cur.execute('''CREATE TABLE IF NOT EXISTS genre (
     title TEXT NOT NULL
 );''')
 # Sessions
-cur.execute('''CREATE TABLE IF NOT EXISTS session(
+cur.execute('''CREATE TABLE IF NOT EXISTS session (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     imageUrl TEXT NOT NULL,
-    genre INTEGER NOT NULL  -- bit flag, keep some genres in it
+    price INTEGER NOT NULL,
+    age_lim INTEGER NOT NULL,
+    date INTEGER NOT NULL  -- timestamp
+);''')
+# Age limit
+cur.execute('''CREATE TABLE IF NOT EXISTS age_lim (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    age INTEGER NOT NULL,
+);''')
+# Session's genres
+cur.execute('''CREATE TABLE IF NOT EXISTS session_genre (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    genre_id INTEGER NOT NULL,
+    session_id INTEGER NOT NULL
 );''')
 
 db.commit()

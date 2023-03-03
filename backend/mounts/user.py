@@ -12,8 +12,13 @@ user = FastAPI()
 
 @user.post('/reg')
 async def register(data: UserRegistration):
-    """User registration"""
-    u = cur.execute('SELECT * FROM user WHERE login = ?', (data.login,)).fetchone()
+    """User registration
+
+    Retrieves access token when successfully registered
+    """
+    u = cur.execute(
+        'SELECT * FROM user WHERE login = ? or email = ?', (data.login, data.email)
+    ).fetchone()
     if u is not None:
         return {'error': 'login already used'}
     roles = [i[0] for i in cur.execute('SELECT * FROM role').fetchall()]
@@ -21,8 +26,8 @@ async def register(data: UserRegistration):
         return {'error': 'this role does not exists'}
     token = token_hex(24)
     cur.execute(
-        'INSERT INTO user (role, login, password, access_token) VALUES (?, ?, ?, ?)',
-        (data.role, data.login, data.password, token)
+        'INSERT INTO user (role, login, password, access_token, name, surname, patronymic, email) VALUES (?, ?, ?, ?)',
+        (data.role, data.login, data.password, token, data.name, data.surname, data.patronymic, data.email)
     )
     db.commit()
     return {'response': {'access_token': token}}
@@ -30,7 +35,10 @@ async def register(data: UserRegistration):
 
 @user.get('/login')
 async def log_in(login: str, password: str):
-    """User authentication"""
+    """User authentication
+
+    Retrieves access token when successfully logged in
+    """
     u = cur.execute('SELECT * FROM user WHERE login = ? and password = ?', (login, password)).fetchone()
     if u is None:
         return {'incorrect login or password!'}
