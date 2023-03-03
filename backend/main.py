@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import db
-from .mounts import user
+from .mounts import user, session
 
 
 app = FastAPI()
@@ -16,3 +16,4 @@ app.add_middleware(
 )
 
 app.mount('/user', user)
+app.mount('/session', session)

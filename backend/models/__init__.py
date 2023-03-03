@@ -10,3 +10,12 @@ class UserRegistration(BaseModel):
     surname: str
     patronymic: str
     email: str
+
+
+class CreateSession(BaseModel):
+    imageUrl: str
+    name: str
+    description: str
+    date: int  # timestamp
+    age_lim: int  # age limit
+    price: int
