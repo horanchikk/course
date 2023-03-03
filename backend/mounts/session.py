@@ -37,3 +37,25 @@ async def get_session_by_id(session_id: int):
         'age_limit': age[1],
         'date': s[6]
     }}
+
+
+@session.get('/last')
+async def get_last_sessions(count: int = 5):
+    s = cur.execute('SELECT * FROM session ORDER BY id DESC LIMIT ?', (count,)).fetchall()
+    result = []
+    for i in s:
+        age = cur.execute('SELECT * FROM age_lim WHERE id = ?', (i[5],)).fetchone()
+        result.append({
+            'id': i[0],
+            'title': i[1],
+            'description': i[2],
+            'imageUrl': i[3],
+            'price': i[4],
+            'age_limit': age[1],
+            'date': i[6]
+        })
+    return {'response': {
+        'items': result,
+        'size': len(result)
+    }}
+
