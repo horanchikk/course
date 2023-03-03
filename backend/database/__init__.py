@@ -51,7 +51,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS session (
 # Age limit
 cur.execute('''CREATE TABLE IF NOT EXISTS age_lim (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    age INTEGER NOT NULL,
+    age INTEGER NOT NULL
 );''')
 # Session's genres
 cur.execute('''CREATE TABLE IF NOT EXISTS session_genre (

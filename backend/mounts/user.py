@@ -20,14 +20,15 @@ async def register(data: UserRegistration):
         'SELECT * FROM user WHERE login = ? or email = ?', (data.login, data.email)
     ).fetchone()
     if u is not None:
-        return {'error': 'login already used'}
+        return {'error': 'login or email already used'}
     roles = [i[0] for i in cur.execute('SELECT * FROM role').fetchall()]
     if data.role not in roles:
         return {'error': 'this role does not exists'}
     token = token_hex(24)
     cur.execute(
-        'INSERT INTO user (role, login, password, access_token, name, surname, patronymic, email) VALUES (?, ?, ?, ?)',
-        (data.role, data.login, data.password, token, data.name, data.surname, data.patronymic, data.email)
+        'INSERT INTO user (role, login, password, name, surname, patronymic, email, access_token) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        (data.role, data.login, data.password, data.name, data.surname, data.patronymic, data.email, token)
     )
     db.commit()
     return {'response': {'access_token': token}}
@@ -42,4 +43,4 @@ async def log_in(login: str, password: str):
     u = cur.execute('SELECT * FROM user WHERE login = ? and password = ?', (login, password)).fetchone()
     if u is None:
         return {'incorrect login or password!'}
-    return {'response': {'access_token': u[4]}}
+    return {'response': {'access_token': u[8]}}
