@@ -90,6 +90,14 @@ default(
 )
 
 default(
+    'genre', 4,
+    {'title': 'Комедия'},
+    {'title': 'Ужасы'},
+    {'title': 'Приключения'},
+    {'title': 'Фентези'},
+)
+
+default(
     'age_lim', 5,
     {'age': 0},  # 0+, ID: 1
     {'age': 12},  # 12+, ID: 2

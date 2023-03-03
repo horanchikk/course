@@ -48,9 +48,7 @@ async def get_last_sessions(count: int = 5):
         result.append({
             'id': i[0],
             'title': i[1],
-            'description': i[2],
             'imageUrl': i[3],
-            'price': i[4],
             'age_limit': age[1],
             'date': i[6]
         })
@@ -70,7 +68,6 @@ async def get_sessions(offset: int = 0, count: int = 5):
         result.append({
             'id': i[0],
             'title': i[1],
-            'description': i[2],
             'imageUrl': i[3],
             'price': i[4],
             'age_limit': age[1],
@@ -79,4 +76,40 @@ async def get_sessions(offset: int = 0, count: int = 5):
     return {'response': {
         'items': result,
         'size': len(result)
+    }}
+
+
+@session.patch('/genres{session_id}')
+async def add_genres(session_id: int, genre_id: int):
+    """Adds a new genres into session"""
+    s = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
+    if s is None:
+        return {'error': 'sessions does not exists'}
+    g = [
+        i[1] for i in
+        cur.execute('SELECT * FROM session_genre WHERE session_id = ?', (session_id,)).fetchall()
+    ]
+    if genre_id in g:
+        return {'error': 'session already have this genre'}
+    cur.execute('INSERT INTO session_genre (genre_id, session_id) VALUES (?, ?)', (genre_id, session_id))
+    db.commit()
+    return {'response': {
+        'id': cur.lastrowid
+    }}
+
+
+@session.get('/genres{session_id}')
+async def get_genres(session_id: int):
+    """Retrieves all genres of the session"""
+    s = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
+    if s is None:
+        return {'error': 'sessions does not exists'}
+    g = [
+        cur.execute('SELECT * FROM genre WHERE id = ?', (i[1],)).fetchone()[1]  # title
+        for i in
+        cur.execute('SELECT * FROM session_genre WHERE session_id = ?', (session_id,)).fetchall()
+    ]
+    return {'response': {
+        'items': g,
+        'size': len(g)
     }}
