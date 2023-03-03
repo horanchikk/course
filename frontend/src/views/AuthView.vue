@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full h-full">
-    <Slider />
+  <div>
+
   </div>
 </template>
 
