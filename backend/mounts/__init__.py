@@ -2,3 +2,4 @@
 from .user import user
 from .session import session
 from .genre import genre
+from .assets import assets
