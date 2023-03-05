@@ -6,6 +6,7 @@ import AfishaView from '@/views/AfishaView.vue'
 import AuthView from '@/views/AuthView.vue'
 import FilmView from '@/views/FilmView.vue'
 
+
 const routes = [
   {
     path: '/',
