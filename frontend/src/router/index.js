@@ -4,12 +4,18 @@ import AboutView from '@/views/AboutView.vue'
 import PlaceView from '@/views/PlaceView.vue'
 import AfishaView from '@/views/AfishaView.vue'
 import AuthView from '@/views/AuthView.vue'
+import FilmView from '@/views/FilmView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'afisha',
     component: AfishaView
+  },
+  {
+    path: '/film/:id',
+    name: 'Film',
+    component: FilmView
   },
   {
     path: '/about',

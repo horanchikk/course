@@ -12,3 +12,7 @@
 .show-up {
     animation: showUp 100ms ease-in-out;
 }
+
+.hideScroll::-webkit-scrollbar {
+    width: 0;
+  }

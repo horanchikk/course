@@ -32,8 +32,4 @@ import { ui } from './store'
   text-align: center;
   color: #2c3e50;
 }
-
-.hideScroll::-webkit-scrollbar {
-  width: 0;
-}
 </style>
