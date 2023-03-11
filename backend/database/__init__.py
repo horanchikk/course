@@ -49,6 +49,12 @@ cur.execute('''CREATE TABLE IF NOT EXISTS ticket (
     cart_id INTEGER NOT NULL,
     session_id INTEGER NOT NULL
 );''')
+# Tickets in order
+cur.execute('''CREATE TABLE IF NOT EXISTS ticket_order (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    session_id INTEGER NOT NULL
+);''')
 # Genres, only for admins
 cur.execute('''CREATE TABLE IF NOT EXISTS genre (
     id INTEGER PRIMARY KEY,
