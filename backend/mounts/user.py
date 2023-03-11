@@ -50,7 +50,7 @@ async def log_in(login: str, password: str):
     return {'response': {'access_token': u[8]}}
 
 
-@user.patch('/add-to-cart{user_id}')
+@user.patch('/addToCart{user_id}')
 async def add2cart(user_id: int, session_id: int):
     """Adds session to cart if available"""
     s = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
@@ -110,3 +110,21 @@ async def get_user_cart(access_token: str):
         'items': tickets,
         'size': len(tickets)
     }}
+
+
+@user.delete('/removeFromCart')
+async def remove_ticket_from_cart(access_token: str, session_id: int):
+    """Removes ticket from cart"""
+    session = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
+    if session is None:
+        return {'error': 'this session does not exists'}
+    user = cur.execute('SELECT * FROM user WHERE access_token = ?', (access_token,)).fetchone()
+    if user is None:
+        return {'error': 'this user does not exists'}
+    cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (user[0],)).fetchone()
+    ticket = cur.execute('SELECT * FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0])).fetchone()
+    if ticket is None:
+        return {'error': 'this ticket does not exists'}
+    cur.execute('DELETE FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0]))
+    db.commit()
+    return {'response': 'success'}
