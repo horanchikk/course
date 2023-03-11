@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 from secrets import token_hex
 
 from fastapi import FastAPI
@@ -118,14 +119,103 @@ async def remove_ticket_from_cart(access_token: str, session_id: int):
     session = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
     if session is None:
         return {'error': 'this session does not exists'}
-    user = cur.execute('SELECT * FROM user WHERE access_token = ?', (access_token,)).fetchone()
-    if user is None:
+    u = cur.execute('SELECT * FROM user WHERE access_token = ?', (access_token,)).fetchone()
+    if u is None:
         return {'error': 'this user does not exists'}
-    cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (user[0],)).fetchone()
+    cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (u[0],)).fetchone()
     ticket = cur.execute('SELECT * FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0])).fetchone()
     if ticket is None:
         return {'error': 'this ticket does not exists'}
     cur.execute('DELETE FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0]))
     cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (session[9]+1, session_id))
     db.commit()
+    return {'response': 'success'}
+
+
+@user.post('/order')
+async def create_order(access_token: str, password: str):
+    """Creates a new order"""
+    u = cur.execute('SELECT * FROM user WHERE access_token = ? and password = ?', (access_token, password)).fetchone()
+    if u is None:
+        return {'error': 'this user does not exists'}
+    # get cart
+    cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (u[0],)).fetchone()
+    tickets = cur.execute('SELECT * FROM ticket WHERE cart_id = ?', (cart[0],)).fetchall()
+    # Create a new order
+    cur.execute('INSERT INTO cart_order (status, timestamp) VALUES (?, ?)', (1, time.time()))
+    order_id = cur.lastrowid
+    cur.execute('INSERT INTO order_owner (user_id, order_id) VALUES (?, ?)', (u[0], order_id))
+    order_owner_id = cur.lastrowid
+    for ticket in tickets:
+        # Moves ticket from ticket table to ticket_order table
+        cur.execute('INSERT INTO ticket_order (order_id, session_id) VALUES (?, ?)', (order_id, ticket[2]))
+        cur.execute('DELETE FROM ticket WHERE id = ?', (ticket[0],))
+    db.commit()
+    return {'response': 'success'}
+
+
+@user.get('/orders')
+async def get_user_orders(access_token: str):
+    """Retrieves all user's orders"""
+    u = cur.execute('SELECT * FROM user WHERE access_token = ?', (access_token,)).fetchone()
+    if u is None:
+        return {'error': 'this user does not exists'}
+    orders_ids = cur.execute('SELECT * FROM order_owner WHERE user_id = ?', (u[0],)).fetchall()
+    result = []
+    for order_id in orders_ids:
+        oid = order_id[1]  # user ID
+
+        tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (oid,)).fetchall()
+        result.append({
+            'items': [],
+            'price': 0
+        })
+        for ticket in tickets:
+            # Get session data
+            s = await get_session_by_id(ticket[2])
+            result[-1]['items'].append(s['result'])
+            result[-1]['price'] += result[-1]['items'][-1]['price']
+        result[-1]['size'] = len(result[-1]['items'])
+    return {'response': {
+        'items': result,
+        'size': len(result),
+    }}
+
+
+@user.get('/ordersList')
+async def get_user_orders(filter_by: int = 1):
+    """Retrieves all orders"""
+    orders_ids = cur.execute('SELECT * FROM order_owner').fetchall()
+    result = []
+    for order_id in orders_ids:
+        oid = order_id[1]  # user ID
+        status = cur.execute('SELECT * FROM cart_order WHERE status = ? and id = ?', (filter_by, oid)).fetchone()
+        if status is None:
+            continue
+        tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (oid,)).fetchall()
+        result.append({
+            'items': [],
+            'price': 0
+        })
+        for ticket in tickets:
+            # Get session data
+            s = await get_session_by_id(ticket[2])
+            result[-1]['items'].append(s['result'])
+            result[-1]['price'] += result[-1]['items'][-1]['price']
+        result[-1]['size'] = len(result[-1]['items'])
+    return {'response': {
+        'items': result,
+        'size': len(result),
+    }}
+
+
+@user.patch('/order{order_id}')
+async def update_order(order_id: int, status: int, description: str):
+    """Updates order status"""
+    o = cur.execute('SELECT * FROM cart_order WHERE id = ?', (order_id,)).fetchone()
+    if o is None:
+        return {'error': 'this order does not exists'}
+    cur.execute('UPDATE cart_order SET status = ? WHERE id = ?', (status, order_id,))
+    if status == 3:  # cancelation
+        cur.execute('INSERT INTO order_cancel (description) VALUES (?)', (description,))
     return {'response': 'success'}

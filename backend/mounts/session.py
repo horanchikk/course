@@ -40,6 +40,28 @@ async def get_session_by_id(session_id: int):
     }}
 
 
+@session.patch('/id{session_id}')
+async def edit_session(
+        session_id: int,
+        title: str = None,
+        image_url: str = None,
+        price: int = None,
+        ticket_count: int = None
+):
+    """Edits session"""
+    s = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
+    if s is None:
+        return {'error': 'this session does not exists'}
+    title = title if title else s[1]
+    image_url = image_url if image_url else s[3]
+    price = price if price else s[4]
+    ticket_count = ticket_count if ticket_count else s[7]
+    cur.execute('UPDATE session SET title = ?, imageUrl = ?, price = ?, ticket_count = ? WHERE id = ?',
+                (title, image_url, price, ticket_count, session_id))
+    db.commit()
+    return {'response': 'success'}
+
+
 @session.get('/last')
 async def get_last_sessions(count: int = 5):
     s = cur.execute('SELECT * FROM session ORDER BY id DESC LIMIT ?', (count,)).fetchall()
