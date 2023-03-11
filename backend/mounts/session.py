@@ -12,9 +12,9 @@ session = FastAPI()
 async def create_new_session(data: CreateSession):
     """Creates a new session"""
     cur.execute(
-        'INSERT INTO session (title, description, age_lim, imageUrl, date, price) '
-        'VALUES (?, ?, ?, ?, ?, ?)',
-        (data.name, data.description, data.age_lim, data.imageUrl, data.date, data.price)
+        'INSERT INTO session (title, description, age_lim, imageUrl, date, price, ticket_count) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (data.name, data.description, data.age_lim, data.imageUrl, data.date, data.price, data.ticket_count)
     )
     db.commit()
     return {'response': {
@@ -35,7 +35,8 @@ async def get_session_by_id(session_id: int):
         'imageUrl': s[3],
         'price': s[4],
         'age_limit': age[1],
-        'date': s[6]
+        'date': s[6],
+        'ticket_count': s[7]
     }}
 
 
@@ -50,7 +51,8 @@ async def get_last_sessions(count: int = 5):
             'title': i[1],
             'imageUrl': i[3],
             'age_limit': age[1],
-            'date': i[6]
+            'date': i[6],
+            'ticket_count': i[7]
         })
     return {'response': {
         'items': result,
@@ -71,7 +73,8 @@ async def get_sessions(offset: int = 0, count: int = 5):
             'imageUrl': i[3],
             'price': i[4],
             'age_limit': age[1],
-            'date': i[6]
+            'date': i[6],
+            'ticket_count': i[7]
         })
     return {'response': {
         'items': result,
@@ -113,3 +116,25 @@ async def get_genres(session_id: int):
         'items': g,
         'size': len(g)
     }}
+
+
+@session.delete('/id{session_id}/genre{genre_id}')
+async def delete_genre_from_session(session_id: int, genre_id: int):
+    """Deletes genre from session by it IDs"""
+    s = cur.execute('SELECT * FROM session_genre WHERE session_id = ? and genre_id = ?', (session_id, genre_id)).fetchone()
+    if s is None:
+        return {'error': 'this session has not this genre'}
+    cur.execute('DELETE FROM session_genre WHERE session_id = ? and genre_id = ?', (session_id, genre_id))
+    db.commit()
+    return {'response': 'success'}
+
+
+@session.delete('/id{session_id}')
+async def delete_session_by_id(session_id: int):
+    """Deletes session by ID"""
+    s = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
+    if s is None:
+        return {'error': 'this session does not exists'}
+    cur.execute('DELETE FROM session WHERE id = ?', (session_id,))
+    db.commit()
+    return {'response': 'success'}

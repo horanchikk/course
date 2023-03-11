@@ -19,6 +19,7 @@ class CreateSession(BaseModel):
     date: int  # timestamp
     age_lim: int  # age limit
     price: int
+    ticket_count: int
 
 
 class CreateGenre(BaseModel):

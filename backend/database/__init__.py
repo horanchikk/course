@@ -27,6 +27,22 @@ cur.execute('''CREATE TABLE IF NOT EXISTS cart (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL  -- cart owner (client)
 );''')
+# Order
+cur.execute('''CREATE TABLE IF NOT EXISTS cart_order (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    status INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
+);''')
+# Order status
+cur.execute('''CREATE TABLE IF NOT EXISTS order_status (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL
+);''')
+# Order cancel description
+cur.execute('''CREATE TABLE IF NOT EXISTS order_cancel (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    description TEXT NOT NULL
+);''')
 # Tickets
 cur.execute('''CREATE TABLE IF NOT EXISTS ticket (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +62,8 @@ cur.execute('''CREATE TABLE IF NOT EXISTS session (
     imageUrl TEXT NOT NULL,
     price INTEGER NOT NULL,
     age_lim INTEGER NOT NULL,
-    date INTEGER NOT NULL  -- timestamp
+    date INTEGER NOT NULL,  -- timestamp
+    ticket_count INTEGER NOT NULL
 );''')
 # Age limit
 cur.execute('''CREATE TABLE IF NOT EXISTS age_lim (
@@ -90,6 +107,20 @@ default(
 )
 
 default(
+    'user', 1,
+    {
+        'role': 1,
+        'name': 'biba',
+        'surname': 'boba',
+        'patronymic': 'asdasd',
+        'login': 'admin',
+        'email': 'secure...',
+        'password': 'admin66',
+        'access_token': 'longlonglongtoken'
+    }
+)
+
+default(
     'genre', 4,
     {'title': 'Комедия'},
     {'title': 'Ужасы'},
@@ -104,4 +135,11 @@ default(
     {'age': 16},  # etc.
     {'age': 18},
     {'age': 21},
+)
+
+default(
+    'order_status', 3,
+    {'title': 'Новый'},
+    {'title': 'Подтвержденный'},
+    {'title': 'Отмененный'},
 )
