@@ -33,6 +33,12 @@ cur.execute('''CREATE TABLE IF NOT EXISTS cart_order (
     status INTEGER NOT NULL,
     timestamp INTEGER NOT NULL
 );''')
+# Order owner
+cur.execute('''CREATE TABLE IF NOT EXISTS order_owner (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    order_id INTEGER NOT NULL
+);''')
 # Order status
 cur.execute('''CREATE TABLE IF NOT EXISTS order_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
