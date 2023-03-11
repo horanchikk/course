@@ -126,5 +126,6 @@ async def remove_ticket_from_cart(access_token: str, session_id: int):
     if ticket is None:
         return {'error': 'this ticket does not exists'}
     cur.execute('DELETE FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0]))
+    cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (session[9]+1, session_id))
     db.commit()
     return {'response': 'success'}
