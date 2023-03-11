@@ -102,3 +102,11 @@ async def get_user_cart(access_token: str):
     for i in result:
         # get session
         tickets.append((await get_session_by_id(i[2]))['response'])
+    price = 0
+    for i in tickets:
+        price += i['price']
+    return {'response': {
+        'price': price,
+        'items': tickets,
+        'size': len(tickets)
+    }}
