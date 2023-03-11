@@ -5,13 +5,19 @@ import PlaceView from '@/views/PlaceView.vue'
 import AfishaView from '@/views/AfishaView.vue'
 import AuthView from '@/views/AuthView.vue'
 import FilmView from '@/views/FilmView.vue'
-
+import AdminView from '@/views/AdminView.vue'
+import AccountView from '@/views/AccountView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'afisha',
     component: AfishaView
+  },
+  {
+    path: "/account",
+    name: "account",
+    component: AccountView
   },
   {
     path: '/film/:id',
@@ -32,6 +38,11 @@ const routes = [
     path: '/auth',
     name: 'auth',
     component: AuthView
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView
   }
 ]
 
