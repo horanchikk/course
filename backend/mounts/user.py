@@ -58,10 +58,10 @@ async def add2cart(user_id: int, session_id: int):
     if s is None:
         return {'error': 'this session does not exists'}
     # Check if session tickets is less than one
-    if s[9] < 1:
+    if s[7] < 1:
         return {'error': 'session tickets is ended'}
     # Decrement ticket count
-    cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (s[9]-1, session_id))
+    cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (s[7]-1, session_id))
     # Add ticket into cart
     cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (user_id,)).fetchone()
     cur.execute('INSERT INTO ticket (cart_id, session_id) VALUES (?, ?)', (cart[0], session_id))
@@ -127,7 +127,7 @@ async def remove_ticket_from_cart(access_token: str, session_id: int):
     if ticket is None:
         return {'error': 'this ticket does not exists'}
     cur.execute('DELETE FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0]))
-    cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (session[9]+1, session_id))
+    cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (session[7]+1, session_id))
     db.commit()
     return {'response': 'success'}
 
