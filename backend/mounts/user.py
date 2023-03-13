@@ -102,7 +102,9 @@ async def get_user_cart(access_token: str):
     result = cur.execute('SELECT * FROM ticket WHERE cart_id = ?', (cart[0],)).fetchall()
     for i in result:
         # get session
-        tickets.append((await get_session_by_id(i[2]))['response'])
+        t = (await get_session_by_id(i[2]))['response']
+        t['ticket_id'] = i[2]
+        tickets.append(t)
     price = 0
     for i in tickets:
         price += i['price']
@@ -114,7 +116,7 @@ async def get_user_cart(access_token: str):
 
 
 @user.delete('/removeFromCart')
-async def remove_ticket_from_cart(access_token: str, session_id: int):
+async def remove_ticket_from_cart(access_token: str, session_id: int, ticket_id: int):
     """Removes ticket from cart"""
     session = cur.execute('SELECT * FROM session WHERE id = ?', (session_id,)).fetchone()
     if session is None:
@@ -122,11 +124,10 @@ async def remove_ticket_from_cart(access_token: str, session_id: int):
     u = cur.execute('SELECT * FROM user WHERE access_token = ?', (access_token,)).fetchone()
     if u is None:
         return {'error': 'this user does not exists'}
-    cart = cur.execute('SELECT * FROM cart WHERE user_id = ?', (u[0],)).fetchone()
-    ticket = cur.execute('SELECT * FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0])).fetchone()
+    ticket = cur.execute('SELECT * FROM ticket WHERE id = ?', (ticket_id,)).fetchone()
     if ticket is None:
         return {'error': 'this ticket does not exists'}
-    cur.execute('DELETE FROM ticket WHERE session_id = ? and cart_id = ?', (session_id, cart[0]))
+    cur.execute('DELETE FROM ticket WHERE id = ?', (ticket_id,))
     cur.execute('UPDATE session SET ticket_count = ? WHERE id = ?', (session[7]+1, session_id))
     db.commit()
     return {'response': 'success'}
