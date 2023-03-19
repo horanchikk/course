@@ -103,7 +103,7 @@ async def get_user_cart(access_token: str):
     for i in result:
         # get session
         t = (await get_session_by_id(i[2]))['response']
-        t['ticket_id'] = i[2]
+        t['ticket_id'] = i[0]
         tickets.append(t)
     price = 0
     for i in tickets:
