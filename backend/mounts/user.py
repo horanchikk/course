@@ -152,7 +152,9 @@ async def create_order(access_token: str, password: str):
         cur.execute('INSERT INTO ticket_order (order_id, session_id) VALUES (?, ?)', (order_id, ticket[2]))
         cur.execute('DELETE FROM ticket WHERE id = ?', (ticket[0],))
     db.commit()
-    return {'response': 'success'}
+    return {'response': {
+        'id': order_id
+    }}
 
 
 @user.get('/orders')
@@ -169,7 +171,8 @@ async def get_user_orders(access_token: str):
         tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (oid,)).fetchall()
         result.append({
             'items': [],
-            'price': 0
+            'price': 0,
+            'order_id': oid
         })
         for ticket in tickets:
             # Get session data
@@ -196,7 +199,8 @@ async def get_user_orders(filter_by: int = 1):
         tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (oid,)).fetchall()
         result.append({
             'items': [],
-            'price': 0
+            'price': 0,
+            'order_id': oid
         })
         for ticket in tickets:
             # Get session data
