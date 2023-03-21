@@ -174,7 +174,7 @@ async def get_user_orders(access_token: str):
         for ticket in tickets:
             # Get session data
             s = await get_session_by_id(ticket[2])
-            result[-1]['items'].append(s['result'])
+            result[-1]['items'].append(s['response'])
             result[-1]['price'] += result[-1]['items'][-1]['price']
         result[-1]['size'] = len(result[-1]['items'])
     return {'response': {
@@ -201,7 +201,7 @@ async def get_user_orders(filter_by: int = 1):
         for ticket in tickets:
             # Get session data
             s = await get_session_by_id(ticket[2])
-            result[-1]['items'].append(s['result'])
+            result[-1]['items'].append(s['response'])
             result[-1]['price'] += result[-1]['items'][-1]['price']
         result[-1]['size'] = len(result[-1]['items'])
     return {'response': {
