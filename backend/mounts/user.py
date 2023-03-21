@@ -172,7 +172,8 @@ async def get_user_orders(access_token: str):
         result.append({
             'items': [],
             'price': 0,
-            'order_id': oid
+            'order_id': oid,
+            'status': cur.execute('SELECT * FROM cart_order WHERE id = ?', (oid,)).fetchone()[1]
         })
         for ticket in tickets:
             # Get session data
@@ -200,7 +201,8 @@ async def get_user_orders(filter_by: int = 1):
         result.append({
             'items': [],
             'price': 0,
-            'order_id': oid
+            'order_id': oid,
+            'status': cur.execute('SELECT * FROM cart_order WHERE id = ?', (oid,)).fetchone()[1]
         })
         for ticket in tickets:
             # Get session data
@@ -223,4 +225,15 @@ async def update_order(order_id: int, status: int, description: str):
     cur.execute('UPDATE cart_order SET status = ? WHERE id = ?', (status, order_id,))
     if status == 3:  # cancelation
         cur.execute('INSERT INTO order_cancel (description) VALUES (?)', (description,))
+    return {'response': 'success'}
+
+
+@user.delete('/order{order_id}')
+async def delete_order(order_id: int):
+    """Deletes order"""
+    o = cur.execute('SELECT * FROM cart_order WHERE id = ?', (order_id,)).fetchone()
+    if o is None:
+        return {'error': 'this order does not exists'}
+    cur.execute('DELETE cart_order WHERE id = ?', (order_id,))
+    cur.execute('DELETE FROM ticket_order WHERE order_id = ?', (order_id,))
     return {'response': 'success'}
