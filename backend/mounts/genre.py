@@ -21,6 +21,19 @@ async def create_new_genre(data: CreateGenre):
     }}
 
 
+@genre.get('/')
+async def get_all_genres():
+    g = cur.execute('SELECT * FROM genre').fetchall()
+    arr = [{
+        'id': i[0],
+        'title': i[1]
+    } for i in g]
+    return {'response': {
+        'items': arr,
+        'size': len(arr)
+    }}
+
+
 @genre.delete('/id{genre_id}')
 async def create_new_genre(genre_id: int):
     """Creates a new genre
