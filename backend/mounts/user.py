@@ -173,7 +173,7 @@ async def get_user_orders(access_token: str):
             'items': [],
             'price': 0,
             'order_id': oid,
-            'status': cur.execute('SELECT * FROM cart_order WHERE id = ?', (oid,)).fetchone()[1]
+            'status': cur.execute('SELECT * FROM cart_order WHERE id = ?', (order_id[0],)).fetchone()[1]
         })
         for ticket in tickets:
             # Get session data
@@ -197,7 +197,7 @@ async def get_user_orders(filter_by: int = 1):
         status = cur.execute('SELECT * FROM cart_order WHERE status = ? and id = ?', (filter_by, oid)).fetchone()
         if status is None:
             continue
-        tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (oid,)).fetchall()
+        tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (order_id[0],)).fetchall()
         result.append({
             'items': [],
             'price': 0,
