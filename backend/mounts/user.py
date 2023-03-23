@@ -235,5 +235,6 @@ async def delete_order(order_id: int):
     if o is None:
         return {'error': 'this order does not exists'}
     cur.execute('DELETE FROM cart_order WHERE id = ?', (order_id,))
+    cur.execute('DELETE FROM order_owner WHERE order_id = ?', (order_id,))
     cur.execute('DELETE FROM ticket_order WHERE order_id = ?', (order_id,))
     return {'response': 'success'}
