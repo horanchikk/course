@@ -19,3 +19,14 @@ async def create_new_genre(data: CreateGenre):
     return {'response': {
         'id': cur.lastrowid
     }}
+
+
+@genre.delete('/id{genre_id}')
+async def create_new_genre(genre_id: int):
+    """Creates a new genre
+
+    Retrieves id when successfully created
+    """
+    cur.execute('DELETE FROM genre WHERE id = ?', (genre_id,))
+    db.commit()
+    return {'response': 'success'}
