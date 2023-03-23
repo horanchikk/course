@@ -237,4 +237,5 @@ async def delete_order(order_id: int):
     cur.execute('DELETE FROM cart_order WHERE id = ?', (order_id,))
     cur.execute('DELETE FROM order_owner WHERE order_id = ?', (order_id,))
     cur.execute('DELETE FROM ticket_order WHERE order_id = ?', (order_id,))
+    db.commit()
     return {'response': 'success'}
