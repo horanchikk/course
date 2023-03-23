@@ -168,6 +168,9 @@ async def get_user_orders(access_token: str):
     for order_id in orders_ids:
         oid = order_id[1]  # user ID
 
+        status = cur.execute('SELECT * FROM cart_order WHERE status = ? and id = ?', (filter_by, oid)).fetchone()
+        if status is None:
+            continue
         tickets = cur.execute('SELECT * FROM ticket_order WHERE order_id = ?', (order_id[0],)).fetchall()
         result.append({
             'items': [],
@@ -232,10 +235,13 @@ async def update_order(order_id: int, status: int, description: str):
 async def delete_order(order_id: int):
     """Deletes order"""
     o = cur.execute('SELECT * FROM cart_order WHERE id = ?', (order_id,)).fetchone()
+    print(o)
     if o is None:
         return {'error': 'this order does not exists'}
     cur.execute('DELETE FROM cart_order WHERE id = ?', (order_id,))
     cur.execute('DELETE FROM order_owner WHERE order_id = ?', (order_id,))
     cur.execute('DELETE FROM ticket_order WHERE order_id = ?', (order_id,))
+    o = cur.execute('SELECT * FROM cart_order WHERE id = ?', (order_id,)).fetchone()
+    print(o)
     db.commit()
     return {'response': 'success'}
